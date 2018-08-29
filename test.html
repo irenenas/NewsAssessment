@@ -1,0 +1,181 @@
+<!DOCTYPE html>
+<html>
+<head>
+<style>
+@font-face{
+font-family: 'After Hours';
+src: url('./fonts/after-hours.ttf');\
+}
+body {
+  font-family: 'After Hours';
+  text-align: center;
+}
+h1{
+  letter-spacing: 0.2em;
+}
+p.center {
+    text-align: center;
+    color: red;
+}
+div {
+    text-align: center;
+}
+.button {
+    font-family: 'After Hours';
+    border: none;
+    padding: 10px 40px;
+    background-color: white;
+    color: black;
+    border: 2px solid #555555;
+    text-align: center;
+    text-decoration: none;
+    display: inline-block;
+    font-size: 16px;
+    margin: 4px 2px;
+    cursor: pointer;
+    -webkit-transition-duration: 0.4s; /* Safari */
+    transition-duration: 0.4s;
+    box-shadow: 0 12px 16px 0 rgba(0,0,0,0.24),0 17px 50px 0 rgba(0,0,0,0.19);
+}
+.button2:hover {
+    box-shadow: 0 12px 16px 0 rgba(0,0,0,0.24),0 17px 50px 0 rgba(0,0,0,0.19);
+}
+.accordion {
+    font-family: 'After Hours';
+    background-color: #eee;
+    color: #444;
+    cursor: pointer;
+    padding: 18px;
+    width: 100%;
+    text-align: left;
+    border: none;
+    outline: none;
+    transition: 0.4s;
+}
+.active, .accordion:hover {
+    background-color: #ccc;
+}
+.accordion:after {
+    content: '\0056';
+    color: #777;
+    float: right;
+    margin-left: 5px;
+}
+.active:after {
+    content: "\0245";
+}
+.panel {
+    padding: 0 18px;
+    background-color: white;
+    text-align: left;
+    max-height: 0;
+    overflow: hidden;
+    transition: max-height 0.2s ease-out;
+}
+.pagination a {
+    color: black;
+    padding: 8px 16px;
+    text-decoration: none;
+    transition: background-color .3s;
+}
+.pleft {
+    float: left;
+}
+.pright {
+    float: right;
+}
+
+</style>
+</head>
+<body onload="loadDoc()">
+  <title>The Guardian News Assessment</title>
+  <h1>The Guardian News</h1>
+  <button class="button" onclick="loadDoc()">Refresh</button>
+    <br>
+    <br>
+  <div id="acc">
+    <!-- accordion will appear here -->
+  </div>
+
+  <p id="demo">
+    <!-- error will appear here -->
+  </p>
+
+  <br>
+
+  <!-- pagination -->
+  <div class="pagination">
+    <a class="pleft button" href="#">❮ Previous Page</a>
+    &nbsp
+    <a href="#">1</a>
+    &nbsp of &nbsp
+      <span id="nop"> <!-- total number of pages will appear here --> </span>
+    &nbsp pages
+    <a class="pright button" href="#">Next Page ❯</a>
+  </div>
+
+<script>
+function loadDoc() {
+  var xhttp, i, j, x = "", nop = "";
+  var acc = document.getElementsByClassName("accordion");
+
+    if (window.XMLHttpRequest) {
+      // code for modern browsers
+      xhttp = new XMLHttpRequest();
+      } else {
+      // code for IE6, IE5
+      xhttp = new ActiveXObject("Microsoft.XMLHTTP");
+    }
+    xhttp.onreadystatechange = function() {
+      if (this.readyState == 4 && this.status == 200) {
+        var obj = JSON.parse(this.responseText);
+
+        for (i in obj.response.results) {
+            x += "<button class=\"accordion\">" + obj.response.results[i].webTitle + "</button>\
+                    <div class=\"panel\">\
+                      <p>\
+                        " + obj.response.results[i].fields.trailText + "<br>\
+                        <a href=\"" + obj.response.results[i].webUrl + "\">Read full news</a>\
+                      </p>\
+                    </div>";
+        }
+
+        //showing the news
+        document.getElementById("acc").style.display = "block";
+        document.getElementById("acc").innerHTML = x;
+
+        //accordion slides here
+        for (j = 0; j < acc.length; j++) {
+          acc[j].addEventListener("click", function() {
+            this.classList.toggle("active");
+            var panel = this.nextElementSibling;
+            if (panel.style.maxHeight){
+              panel.style.maxHeight = null;
+            } else {
+              panel.style.maxHeight = panel.scrollHeight + "px";
+            }
+          });
+        }
+
+        //hiding the error message
+        document.getElementById("demo").style.display = "none";
+
+        //getting the total number of pages
+        nop = obj.response.pages;
+        document.getElementById("nop").innerHTML = nop;
+
+      } else {
+        document.getElementById("acc").style.display = "none";
+        document.getElementById("demo").style.color = "red";
+        document.getElementById("demo").style.textAlign = "center";
+        document.getElementById("demo").innerHTML = "Sorry we couldn't find news for you. Plese try again later."
+      }
+    };
+
+    xhttp.open("GET", "https://content.guardianapis.com/search?order-by=newest&show-fields=trailText&page=1&page-size=10&api-key=4b7da082-370f-45cb-aea4-00f3219c0ac6", true);
+    xhttp.send();
+}
+</script>
+
+</body>
+</html>
